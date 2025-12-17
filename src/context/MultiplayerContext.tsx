@@ -41,7 +41,6 @@ export const MultiplayerProvider: React.FC<{ children: ReactNode }> = ({ childre
                     break;
                 case 'SUBMIT_ANSWER':
                     if (isHost) {
-                        // Dispatch the answer to GameContext to handle scoring and state
                         dispatch({
                             type: 'SUBMIT_ANSWER',
                             payload: {
@@ -49,6 +48,17 @@ export const MultiplayerProvider: React.FC<{ children: ReactNode }> = ({ childre
                                 answerIndex: event.payload.answerIndex
                             }
                         });
+
+                        if (event.payload.comment) {
+                            const player = state.players[event.payload.playerId];
+                            dispatch({
+                                type: 'ADD_COMMENT',
+                                payload: {
+                                    playerName: player?.name || 'Anônimo',
+                                    text: event.payload.comment
+                                }
+                            });
+                        }
                     }
                     break;
                 case 'NEW_QUESTION':

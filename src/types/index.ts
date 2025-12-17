@@ -28,6 +28,7 @@ export interface GameState {
     currentQuestion?: Question;
     timeLeft: number;
     winner?: Player;
+    recentComments: { id: string; playerName: string; text: string }[];
 }
 
 // Multiplayer Events
@@ -36,7 +37,7 @@ export type GameEvent =
     | { type: 'PLAYER_JOINED'; payload: Player }
     | { type: 'START_GAME'; payload: {} }
     | { type: 'NEW_QUESTION'; payload: { question: Question; timeLeft: number } }
-    | { type: 'SUBMIT_ANSWER'; payload: { playerId: string; answerIndex: number } }
+    | { type: 'SUBMIT_ANSWER'; payload: { playerId: string; answerIndex: number; comment?: string } }
     | { type: 'ROUND_RESULT'; payload: { correctIndex: number; scores: Record<string, number> } }
     | { type: 'SYNC_STATE'; payload: GameState } // For reconnection/late joiners
     | { type: 'GAME_OVER'; payload: { winner: Player } };

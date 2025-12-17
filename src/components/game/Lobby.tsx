@@ -3,7 +3,6 @@ import { useGame } from '../../context/GameContext';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { motion } from 'framer-motion';
-import { cn } from '../../lib/utils';
 
 interface LobbyProps {
     onJoin: () => void;
@@ -13,7 +12,6 @@ export const Lobby = ({ onJoin }: LobbyProps) => {
     const { setRole, dispatch } = useGame();
     const [name, setName] = useState('');
     const [inputRoom, setInputRoom] = useState('');
-    const [totalRounds, setTotalRounds] = useState(5);
     const [view, setView] = useState<'SELECTION' | 'HOST_SETUP' | 'PLAYER_JOIN'>('SELECTION');
 
     const handleCreateRoom = () => {
@@ -26,7 +24,6 @@ export const Lobby = ({ onJoin }: LobbyProps) => {
         localStorage.setItem('hm_player_id', playerId);
 
         dispatch({ type: 'SET_ROOM_CODE', payload: code });
-        dispatch({ type: 'SET_TOTAL_ROUNDS', payload: totalRounds });
         setRole('HOST');
         onJoin();
     };
@@ -80,25 +77,6 @@ export const Lobby = ({ onJoin }: LobbyProps) => {
                     <div className="flex flex-col gap-4">
                         <h2 className="text-2xl font-bold text-center mb-2">Configurar Partida</h2>
 
-                        <div className="space-y-2 text-left">
-                            <label className="text-sm text-zinc-400">Número de Perguntas</label>
-                            <div className="flex gap-2">
-                                {[5, 10, 15].map(num => (
-                                    <button
-                                        key={num}
-                                        onClick={() => setTotalRounds(num)}
-                                        className={cn(
-                                            "flex-1 p-3 rounded-xl border-2 transition-all font-bold",
-                                            totalRounds === num
-                                                ? "bg-secondary-600 border-secondary-400 text-white"
-                                                : "bg-primary-900 border-primary-800 text-zinc-400"
-                                        )}
-                                    >
-                                        {num}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
 
                         <div className="pt-4 space-y-3">
                             <Button onClick={handleCreateRoom} className="w-full">

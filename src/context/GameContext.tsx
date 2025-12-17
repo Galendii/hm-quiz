@@ -14,6 +14,7 @@ type Action =
     | { type: 'ADD_PLAYER'; payload: Player }
     | { type: 'UPDATE_PLAYER_SCORE'; payload: { id: string; score: number } }
     | { type: 'SET_QUESTION'; payload: Question }
+    | { type: 'ADD_COMMENT'; payload: { playerName: string; text: string } }
     | { type: 'SET_ROOM_CODE'; payload: string }
     | { type: 'DECREMENT_TIMER' }
     | { type: 'SET_TIMER'; payload: number }
@@ -30,6 +31,7 @@ const initialState: GameState = {
     totalComponentRounds: 10,
     players: {},
     timeLeft: 0,
+    recentComments: []
 };
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -79,13 +81,21 @@ const gameReducer = (state: GameState, action: Action): GameState => {
             return { ...state, currentRound: state.currentRound + 1 };
         case 'SET_TOTAL_ROUNDS':
             return { ...state, totalComponentRounds: action.payload };
+        case 'ADD_COMMENT':
+            return {
+                ...state,
+                recentComments: [
+                    ...state.recentComments,
+                    { ...action.payload, id: Math.random().toString(36).substr(2, 9) }
+                ].slice(-5) // Keep only last 5
+            };
         case 'RESET_ROUND':
             // potential perf hits if many players, but fine for < 50
             const resetPlayers = Object.entries(state.players).reduce((acc, [id, p]) => {
                 acc[id] = { ...p, lastAnswer: undefined };
                 return acc;
             }, {} as Record<string, Player>);
-            return { ...state, players: resetPlayers, timeLeft: 30 };
+            return { ...state, players: resetPlayers, timeLeft: 30, recentComments: [] };
         case 'RESET_GAME':
             return initialState;
         default:

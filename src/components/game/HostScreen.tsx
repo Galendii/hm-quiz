@@ -7,32 +7,8 @@ import { AiService } from '../../services';
 import { GameLoader } from '../ui/GameLoader';
 import { cn } from '../../lib/utils';
 import PubScene from '../../assets/pub-scene.jpeg';
-
-
-// --- WOODEN COMPONENTS ---
-const WoodPanel = ({ children, className }: { children: React.ReactNode, className?: string }) => (
-    <div className={cn(
-        "relative bg-[#5D4037] border-4 border-[#3E2723] rounded-lg shadow-[0_10px_20px_rgba(0,0,0,0.5)]",
-        "before:absolute before:inset-0 before:bg-[url('https://www.transparenttextures.com/patterns/wood-pattern.png')] before:opacity-20 before:pointer-events-none", // Optional texture if we had one, or use CSS gradient
-        "after:absolute after:inset-[2px] after:border-2 after:border-[#8D6E63]/30 after:rounded-md after:pointer-events-none", // Inner highlight
-        className
-    )} style={{
-        backgroundImage: 'repeating-linear-gradient(45deg, #5D4037 0px, #5D4037 10px, #4E342E 10px, #4E342E 12px)'
-    }}>
-        <div className="relative z-10">{children}</div>
-    </div>
-);
-
-const ChalkboardPanel = ({ children, className }: { children: React.ReactNode, className?: string }) => (
-    <div className={cn(
-        "bg-[#212121] border-8 border-[#5D4037] rounded-xl shadow-2xl p-6",
-        className
-    )}>
-        <div className="h-full w-full border border-white/10 rounded-lg p-4 font-handwriting text-white">
-            {children}
-        </div>
-    </div>
-);
+import { WoodPanel, ChalkboardPanel } from '../ui/GamePanels';
+import { CommentToast } from './CommentToast';
 
 const BarSceneLayout = ({ children, timeLeft, answeredCount, totalPlayers }: {
     children: React.ReactNode,
@@ -443,6 +419,7 @@ export const HostScreen = () => {
     return (
         <div className="relative w-full h-full min-h-screen">
             {content}
+            <CommentToast comments={state.recentComments} />
             {(isAiLoading || state.status === 'STARTING') && <GameLoader message="Preparando o Barril..." />}
             {isRoundLoading && <GameLoader message="Chamando o Veterano..." />}
         </div>
