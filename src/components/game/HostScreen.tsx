@@ -135,8 +135,12 @@ export const HostScreen = () => {
 
     const handleEndRound = () => {
         dispatch({ type: 'UPDATE_STATUS', payload: 'RESULT' });
-        // Broadcast Result
+
+        // Save to history ONLY when the round is completed (answered or time out)
         if (state.currentQuestion) {
+            aiService.saveHistory(state.currentQuestion.text);
+
+            // Broadcast Result
             sendMessage({
                 type: 'ROUND_RESULT',
                 payload: {
@@ -259,7 +263,11 @@ export const HostScreen = () => {
             dispatch({ type: 'RESET_ROUND' });
 
             setIsRoundLoading(true);
-            const question = await aiService.getNextQuestion();
+            // Artificial delay to ensure loader is visible and bar is "filled"
+            const [question] = await Promise.all([
+                aiService.getNextQuestion(),
+                new Promise(resolve => setTimeout(resolve, 1500))
+            ]);
             setIsRoundLoading(false);
 
             dispatch({ type: 'SET_QUESTION', payload: question });
@@ -370,23 +378,23 @@ export const HostScreen = () => {
                 <motion.div
                     initial={{ y: 200 }}
                     animate={{ y: 0 }}
-                    className="w-full max-w-5xl"
+                    className="w-full max-w-5xl flex-1 flex flex-col justify-center min-h-0"
                 >
                     {/* Question Board (Wooden Sign) */}
-                    <WoodPanel className="mb-6 p-8 md:p-12 text-center border-b-8 border-[#3E2723]">
-                        <h2 className="text-3xl md:text-5xl font-bold text-white leading-tight drop-shadow-[2px_2px_0_#3E2723]">
+                    <WoodPanel className="mb-6 p-6 md:p-10 text-center border-b-8 border-[#3E2723] shrink-0">
+                        <h2 className="text-[clamp(1.2rem,4vw,2.5rem)] font-bold text-white leading-tight drop-shadow-[2px_2px_0_#3E2723] line-clamp-3">
                             {state.currentQuestion.text}
                         </h2>
                     </WoodPanel>
 
                     {/* Options (Planks) */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pb-8 overflow-y-auto max-h-[50vh] md:max-h-none pr-2">
                         {state.currentQuestion.options.map((opt, idx) => (
-                            <div key={idx} className="bg-[#6D4C41] border-4 border-[#4E342E] rounded-xl p-4 flex items-center gap-4 text-white shadow-lg transform hover:-translate-y-1 transition-transform cursor-default">
-                                <div className="w-12 h-12 rounded-lg bg-[#3E2723] flex items-center justify-center font-bold text-[#FFEB3B] text-xl border-2 border-[#8D6E63] shrink-0">
+                            <div key={idx} className="bg-[#6D4C41] border-2 md:border-4 border-[#4E342E] rounded-xl p-3 md:p-4 flex items-center gap-3 md:gap-4 text-white shadow-lg transform hover:-translate-y-1 transition-transform cursor-default min-h-[60px] md:min-h-[80px]">
+                                <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-[#3E2723] flex items-center justify-center font-bold text-[#FFEB3B] text-lg md:text-xl border-2 border-[#8D6E63] shrink-0">
                                     {['A', 'B', 'C', 'D', 'E'][idx]}
                                 </div>
-                                <span className="text-xl font-bold drop-shadow-sm">{opt}</span>
+                                <span className="text-base md:text-xl font-bold drop-shadow-sm line-clamp-2 leading-tight">{opt}</span>
                             </div>
                         ))}
                     </div>

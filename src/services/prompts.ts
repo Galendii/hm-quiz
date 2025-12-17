@@ -10,6 +10,8 @@ REGRAS:
 2. Cada objeto deve estar em PORTUGUÊS.
 3. O tom deve ser de "Teste de Fidelidade à República".
 4. Retorne APENAS o JSON válido, sem texto explicativo fora dele.
+5. **IMPORTANTE**: As perguntas devem ser CURTAS (máximo 80 caracteres) e NÃO podem conter quebras de linha (\n).
+6. **IMPORTANTE**: Use apenas uma frase simples e direta para a pergunta.
 
 Contexto Histórico:
 ${context}

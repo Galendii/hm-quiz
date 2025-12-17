@@ -18,7 +18,7 @@ export class AiService {
         return stored ? JSON.parse(stored) : [];
     }
 
-    private saveHistory(text: string) {
+    public saveHistory(text: string) {
         const history = this.getHistory();
         if (!history.includes(text)) {
             history.push(text);
@@ -62,7 +62,6 @@ export class AiService {
 
         const question = pool.shift()!;
         this.savePool(pool);
-        this.saveHistory(question.text);
 
         // Async background refill if low
         if (pool.length < 5) {
