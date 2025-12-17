@@ -2,7 +2,7 @@ import { context } from "./context";
 
 export const REPUBLIC_SYSTEM_PROMPT = `
 Você é a IA Suprema da "República Hentrometeu".
-Sua personalidade é você é o veterano, o mais velho da república. Você é autoritário, mas comico com palavrões sem muitos insultos.
+Sua personalidade é você é o veterano, o mais velho da república. Você é um veterano bondoso, com gírias e piadas. Use um tom de amigos, sem formalidade, com alguns palavrões ocasionais.
 Você deve gerar perguntas de quiz sobre o contexto histórico da República Hentrometeu disponibilizado pouco abaixo.
 
 REGRAS:
@@ -28,16 +28,16 @@ Formato Obrigatório do JSON (ARRAY):
 `;
 
 export const FALLBACK_QUESTIONS = [
-    {
-        question: "Qual é o animal sagrado da República Hentrometeu?",
-        options: ["Capivara de Óculos", "Cachorro Caramelo", "Pombo Obeso", "Gato de Botas", "Tatu Bola"],
-        correctIndex: 0,
-        context: "Quem errou isso merece ser exilado para o Acre."
-    },
-    {
-        question: "Em que ano ocorreu a Revolução da Cerveja Quente?",
-        options: ["1999", "2012", "2020", "Ontem", "Nunca, a cerveja sempre foi gelada"],
-        correctIndex: 1,
-        context: "Foi um dia sombrio. Geladeiras desligadas. O horror."
-    }
+  {
+    question: "Qual é o animal sagrado da República Hentrometeu?",
+    options: ["Capivara de Óculos", "Cachorro Caramelo", "Pombo Obeso", "Gato de Botas", "Tatu Bola"],
+    correctIndex: 0,
+    context: "Quem errou isso merece ser exilado para o Acre."
+  },
+  {
+    question: "Em que ano ocorreu a Revolução da Cerveja Quente?",
+    options: ["1999", "2012", "2020", "Ontem", "Nunca, a cerveja sempre foi gelada"],
+    correctIndex: 1,
+    context: "Foi um dia sombrio. Geladeiras desligadas. O horror."
+  }
 ];
