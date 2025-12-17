@@ -87,6 +87,12 @@ export const HostScreen = () => {
     // No API ID passed here, so it will use the backend proxy by default
     const aiService = React.useMemo(() => new AiService(''), []);
 
+    React.useEffect(() => {
+        if (state.status === 'LOBBY') {
+            aiService.preloadQuestions(state.totalComponentRounds).catch(console.error);
+        }
+    }, [aiService, state.status, state.totalComponentRounds]);
+
     // Derived state
     const totalPlayers = Object.keys(state.players).length;
     const answeredCount = Object.values(state.players).filter(p => p.lastAnswer !== undefined).length;
@@ -247,7 +253,7 @@ export const HostScreen = () => {
             dispatch({ type: 'INCREMENT_ROUND' });
             dispatch({ type: 'RESET_ROUND' });
 
-            const question = await aiService.generateQuestion();
+            const question = await aiService.getNextQuestion();
             dispatch({ type: 'SET_QUESTION', payload: question });
             dispatch({ type: 'SET_TIMER', payload: 30 }); // Reset timer
             dispatch({ type: 'UPDATE_STATUS', payload: 'QUESTION' });
@@ -299,6 +305,26 @@ export const HostScreen = () => {
                                 "Garçom! A mesa está vazia..."
                             </div>
                         )}
+                    </div>
+
+                    <div className="flex flex-col items-center gap-4 mb-12">
+                        <span className="text-[#A1887F] font-bold uppercase tracking-widest text-xs">Duração da Mesa</span>
+                        <div className="flex gap-4">
+                            {[5, 10, 15].map(num => (
+                                <button
+                                    key={num}
+                                    onClick={() => dispatch({ type: 'SET_TOTAL_ROUNDS', payload: num })}
+                                    className={cn(
+                                        "px-6 py-2 rounded-lg font-bold transition-all border-2",
+                                        state.totalComponentRounds === num
+                                            ? "bg-[#FFEB3B] text-[#3E2723] border-[#FFEB3B] scale-110 shadow-lg"
+                                            : "bg-[#3E2723]/30 text-white/50 border-white/10 hover:border-white/30"
+                                    )}
+                                >
+                                    {num} Rodadas
+                                </button>
+                            ))}
+                        </div>
                     </div>
 
                     <div className="flex justify-center">
