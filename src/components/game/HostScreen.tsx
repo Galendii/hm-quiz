@@ -4,6 +4,7 @@ import { useMultiplayerContext } from '../../context/MultiplayerContext';
 import { Button } from '../ui/Button';
 import { motion } from 'framer-motion';
 import { AiService } from '../../services';
+import { GameLoader } from '../ui/GameLoader';
 import { cn } from '../../lib/utils';
 import PubScene from '../../assets/pub-scene.jpeg';
 
@@ -82,6 +83,8 @@ export const HostScreen = () => {
 
     const { state, dispatch } = useGame();
     const { sendMessage } = useMultiplayerContext();
+    const [isAiLoading, setIsAiLoading] = React.useState(false);
+    const [isRoundLoading, setIsRoundLoading] = React.useState(false);
 
     // Memoize service to keep history
     // No API ID passed here, so it will use the backend proxy by default
@@ -89,7 +92,9 @@ export const HostScreen = () => {
 
     React.useEffect(() => {
         if (state.status === 'LOBBY') {
-            aiService.preloadQuestions(state.totalComponentRounds).catch(console.error);
+            setIsAiLoading(true);
+            aiService.preloadQuestions(state.totalComponentRounds)
+                .finally(() => setIsAiLoading(false));
         }
     }, [aiService, state.status, state.totalComponentRounds]);
 
@@ -253,7 +258,10 @@ export const HostScreen = () => {
             dispatch({ type: 'INCREMENT_ROUND' });
             dispatch({ type: 'RESET_ROUND' });
 
+            setIsRoundLoading(true);
             const question = await aiService.getNextQuestion();
+            setIsRoundLoading(false);
+
             dispatch({ type: 'SET_QUESTION', payload: question });
             dispatch({ type: 'SET_TIMER', payload: 30 }); // Reset timer
             dispatch({ type: 'UPDATE_STATUS', payload: 'QUESTION' });
@@ -264,6 +272,7 @@ export const HostScreen = () => {
                 payload: { question, timeLeft: 30 }
             });
         } catch (e) {
+            setIsRoundLoading(false);
             console.error(e);
             alert('A República está com problemas técnicos. (Erro na IA)');
         }
@@ -328,20 +337,34 @@ export const HostScreen = () => {
                     </div>
 
                     <div className="flex justify-center">
-                        <Button
-                            size="lg"
-                            className="text-2xl px-16 py-8 bg-[#2E7D32] hover:bg-[#1B5E20] border-b-8 border-[#1B5E20] text-white shadow-xl rounded-2xl transform transition-transform active:translate-y-2 active:border-b-0"
-                            onClick={startGame}
-                        >
-                            ABRIR O BAR
-                        </Button>
+                        {isAiLoading ? (
+                            <GameLoader message="Preparando o Barril..." />
+                        ) : (
+                            <Button
+                                size="lg"
+                                className="text-2xl px-16 py-8 bg-[#2E7D32] hover:bg-[#1B5E20] border-b-8 border-[#1B5E20] text-white shadow-xl rounded-2xl transform transition-transform active:translate-y-2 active:border-b-0"
+                                onClick={startGame}
+                            >
+                                ABRIR O BAR
+                            </Button>
+                        )}
                     </div>
                 </div>
             </BarSceneLayout>
         );
     }
 
-    if (state.status === 'QUESTION' && state.currentQuestion) {
+    if (isRoundLoading || state.status === 'STARTING') {
+        return (
+            <BarSceneLayout timeLeft={state.timeLeft} answeredCount={answeredCount} totalPlayers={totalPlayers}>
+                <div className="flex flex-col items-center justify-center p-20">
+                    <GameLoader message="Chamando o Veterano..." />
+                </div>
+            </BarSceneLayout>
+        );
+    }
+
+    if (state.status === 'QUESTION' && state.currentQuestion && !isRoundLoading) {
         return (
             <BarSceneLayout timeLeft={state.timeLeft} answeredCount={answeredCount} totalPlayers={totalPlayers}>
                 <motion.div

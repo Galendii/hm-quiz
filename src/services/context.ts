@@ -18,4 +18,4 @@ Público e alcance: o perfil do Instagram mostra um envolvimento razoável da co
 
 Conclusão histórica (síntese para uso em jogo):
 A partir das evidências públicas, a República Hentrometeu é uma república estudantil com raízes em 2007, fortemente ligada à cultura de festa e produção audiovisual da UNESP Sorocaba, dotada de bordões próprios, rituais e rivalidades com outras repúblicas locais. Sua comunicação online prioriza humor, orgulho e performance comunitária — elementos que definem a mitologia interna da casa. Use esse pano de fundo como base factual + folclórica para gerar perguntas: misture fatos confirmados (datas, nomes de iniciativas/produções, alianças) com lendas internas e charadas satíricas que respeitem o tom irreverente.
-`
+`;

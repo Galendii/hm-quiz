@@ -7,6 +7,7 @@ export class AiService {
     private apiKey: string;
     private poolKey = 'hm_question_pool';
     private historyKey = 'hm_question_history';
+    public isPreloading = false;
 
     constructor(apiKey: string) {
         this.apiKey = apiKey;
@@ -38,6 +39,7 @@ export class AiService {
         let pool = this.getPool();
         if (pool.length >= count) return;
 
+        this.isPreloading = true;
         console.log(`AiService: Preloading ${count - pool.length} questions...`);
         try {
             const batch = await this.generateBatch(count - pool.length);
@@ -45,6 +47,8 @@ export class AiService {
             this.savePool(pool);
         } catch (error) {
             console.error('Failed to preload questions:', error);
+        } finally {
+            this.isPreloading = false;
         }
     }
 
