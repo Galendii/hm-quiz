@@ -11,7 +11,7 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'Server: Missing API Key configuration' });
     }
 
-    const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+    const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-001:generateContent';
 
     try {
         const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
