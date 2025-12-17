@@ -306,7 +306,6 @@ export const HostScreen = () => {
                         </div>
                     </WoodPanel>
 
-                    {/* API Key Input */}
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
                         {Object.values(state.players).map(player => (
@@ -317,7 +316,7 @@ export const HostScreen = () => {
                                 className="relative"
                             >
                                 {/* Coaster Style */}
-                                <div className="w-fit aspect-square bg-[#EFEBE9] rounded-full border-4 border-[#8D6E63] shadow-lg flex flex-col items-center justify-center p-4 text-center transform hover:scale-105 transition-transform">
+                                <div className="bg-[#EFEBE9] rounded-full border-4 border-[#8D6E63] shadow-lg flex flex-col items-center justify-center p-4 text-center transform hover:scale-105 transition-transform">
                                     <div className="text-4xl mb-2">🍺</div>
                                     <div className="font-black text-[#3E2723] text-lg leading-tight line-clamp-2">{player.name}</div>
                                 </div>
