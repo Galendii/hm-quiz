@@ -90,13 +90,7 @@ export const HostScreen = () => {
     // No API ID passed here, so it will use the backend proxy by default
     const aiService = React.useMemo(() => new AiService(''), []);
 
-    React.useEffect(() => {
-        if (state.status === 'LOBBY') {
-            setIsAiLoading(true);
-            aiService.preloadQuestions(state.totalComponentRounds)
-                .finally(() => setIsAiLoading(false));
-        }
-    }, [aiService, state.status, state.totalComponentRounds]);
+    // Removed automatic preload on Lobby
 
     // Derived state
     const totalPlayers = Object.keys(state.players).length;
@@ -253,8 +247,18 @@ export const HostScreen = () => {
 
     const startGame = async () => {
         dispatch({ type: 'UPDATE_STATUS', payload: 'STARTING' });
-        // Simulate loading
-        setTimeout(nextRound, 1000);
+
+        try {
+            setIsAiLoading(true);
+            await aiService.preloadQuestions(state.totalComponentRounds);
+            setIsAiLoading(false);
+            nextRound();
+        } catch (e) {
+            setIsAiLoading(false);
+            console.error(e);
+            alert('Erro ao carregar perguntas. Tente novamente.');
+            dispatch({ type: 'UPDATE_STATUS', payload: 'LOBBY' });
+        }
     };
 
     const nextRound = async () => {
@@ -286,8 +290,10 @@ export const HostScreen = () => {
         }
     };
 
+    let content: React.ReactNode = null;
+
     if (state.status === 'LOBBY') {
-        return (
+        content = (
             <BarSceneLayout timeLeft={state.timeLeft} answeredCount={answeredCount} totalPlayers={totalPlayers}>
                 <div className="w-full max-w-5xl mb-12">
                     <WoodPanel className="mb-12 p-10 text-center transform -rotate-1">
@@ -345,35 +351,25 @@ export const HostScreen = () => {
                     </div>
 
                     <div className="flex justify-center">
-                        {isAiLoading ? (
-                            <GameLoader message="Preparando o Barril..." />
-                        ) : (
-                            <Button
-                                size="lg"
-                                className="text-2xl px-16 py-8 bg-[#2E7D32] hover:bg-[#1B5E20] border-b-8 border-[#1B5E20] text-white shadow-xl rounded-2xl transform transition-transform active:translate-y-2 active:border-b-0"
-                                onClick={startGame}
-                            >
-                                ABRIR O BAR
-                            </Button>
-                        )}
+                        <Button
+                            size="lg"
+                            className="text-2xl px-16 py-8 bg-[#2E7D32] hover:bg-[#1B5E20] border-b-8 border-[#1B5E20] text-white shadow-xl rounded-2xl transform transition-transform active:translate-y-2 active:border-b-0"
+                            onClick={startGame}
+                        >
+                            ABRIR O BAR
+                        </Button>
                     </div>
                 </div>
             </BarSceneLayout>
         );
-    }
-
-    if (isRoundLoading || state.status === 'STARTING') {
-        return (
+    } else if (state.status === 'STARTING' || isAiLoading) {
+        content = (
             <BarSceneLayout timeLeft={state.timeLeft} answeredCount={answeredCount} totalPlayers={totalPlayers}>
-                <div className="flex flex-col items-center justify-center p-20">
-                    <GameLoader message="Chamando o Veterano..." />
-                </div>
+                <div className="w-full h-full" />
             </BarSceneLayout>
         );
-    }
-
-    if (state.status === 'QUESTION' && state.currentQuestion && !isRoundLoading) {
-        return (
+    } else if (state.status === 'QUESTION' && state.currentQuestion && !isRoundLoading) {
+        content = (
             <BarSceneLayout timeLeft={state.timeLeft} answeredCount={answeredCount} totalPlayers={totalPlayers}>
                 <motion.div
                     initial={{ y: 200 }}
@@ -401,55 +397,55 @@ export const HostScreen = () => {
                 </motion.div>
             </BarSceneLayout>
         );
-    }
-
-    if (state.status === 'RESULT') {
+    } else if (state.status === 'RESULT') {
         const question = state.currentQuestion;
-        if (!question) return null;
-        return (
-            <BarSceneLayout timeLeft={state.timeLeft} answeredCount={answeredCount} totalPlayers={totalPlayers}>
-                <motion.div
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    className="w-full max-w-4xl"
-                >
-                    <ChalkboardPanel>
-                        <div className="flex flex-col items-center text-center">
-                            <h2 className="text-[#FFEB3B] text-2xl font-bold mb-4 font-mono tracking-widest uppercase border-b-2 border-white/20 pb-2">
-                                A Verdade da Mesa
-                            </h2>
+        if (question) {
+            content = (
+                <BarSceneLayout timeLeft={state.timeLeft} answeredCount={answeredCount} totalPlayers={totalPlayers}>
+                    <motion.div
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        className="w-full max-w-4xl"
+                    >
+                        <ChalkboardPanel>
+                            <div className="flex flex-col items-center text-center">
+                                <h2 className="text-[#FFEB3B] text-2xl font-bold mb-4 font-mono tracking-widest uppercase border-b-2 border-white/20 pb-2">
+                                    A Verdade da Mesa
+                                </h2>
 
-                            <div className="text-4xl md:text-6xl font-black text-green-400 mb-8 drop-shadow-md">
-                                {question.options[question.correctIndex]}
-                            </div>
+                                <div className="text-4xl md:text-6xl font-black text-green-400 mb-8 drop-shadow-md">
+                                    {question.options[question.correctIndex]}
+                                </div>
 
-                            <div className="bg-white/5 p-6 rounded-lg w-full text-left">
-                                <strong className="text-[#FFAB91] block mb-2 text-sm uppercase">Curiosidade de Bêbado:</strong>
-                                <p className="text-zinc-300 italic text-xl leading-relaxed">
-                                    "{question.context}"
-                                </p>
-                            </div>
+                                <div className="bg-white/5 p-6 rounded-lg w-full text-left">
+                                    <strong className="text-[#FFAB91] block mb-2 text-sm uppercase">Curiosidade de Bêbado:</strong>
+                                    <p className="text-zinc-300 italic text-xl leading-relaxed">
+                                        "{question.context}"
+                                    </p>
+                                </div>
 
-                            <div className="mt-8 w-full flex justify-center">
-                                <Button size="lg" variant="secondary" onClick={handleShowLeaderboard}>
-                                    VER CONTA
-                                </Button>
+                                <div className="mt-8 w-full flex justify-center">
+                                    <Button size="lg" variant="secondary" onClick={handleShowLeaderboard}>
+                                        VER CONTA
+                                    </Button>
+                                </div>
                             </div>
-                        </div>
-                    </ChalkboardPanel>
-                </motion.div>
-            </BarSceneLayout>
-        );
+                        </ChalkboardPanel>
+                    </motion.div>
+                </BarSceneLayout>
+            );
+        }
+    } else if (state.status === 'LEADERBOARD') {
+        content = <LeaderboardView />;
+    } else if (state.status === 'GAME_OVER') {
+        content = <GameOverView />;
     }
 
-    if (state.status === 'LEADERBOARD') {
-        return <LeaderboardView />;
-    }
-
-    if (state.status === 'GAME_OVER') {
-        return <GameOverView />;
-    }
-
-    // Fallback
-    return <BarSceneLayout timeLeft={state.timeLeft} answeredCount={answeredCount} totalPlayers={totalPlayers}><div></div></BarSceneLayout>;
+    return (
+        <div className="relative w-full h-full min-h-screen">
+            {content}
+            {(isAiLoading || state.status === 'STARTING') && <GameLoader message="Preparando o Barril..." />}
+            {isRoundLoading && <GameLoader message="Chamando o Veterano..." />}
+        </div>
+    );
 };
